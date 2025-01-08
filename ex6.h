@@ -1,5 +1,6 @@
 #ifndef EX6_H
 #define EX6_H
+#include <stddef.h>
 
 
 
@@ -45,6 +46,13 @@ typedef struct PokemonNode
     struct PokemonNode *left;
     struct PokemonNode *right;
 } PokemonNode;
+
+typedef struct NodeArray
+{
+    PokemonNode **nodes;
+    int size;
+    int capacity;
+} NodeArray;
 
 // Linked List Node (for Owners)
 typedef struct OwnerNode
@@ -233,13 +241,6 @@ void printPokemonNode(PokemonNode *node);
 /* ------------------------------------------------------------
    5) Display Methods (BFS, Pre, In, Post, Alphabetical)
    ------------------------------------------------------------ */
-
-typedef struct
-{
-    PokemonNode **nodes;
-    int size;
-    int capacity;
-} NodeArray;
 
 /**
  * @brief Initialize a NodeArray with given capacity.
