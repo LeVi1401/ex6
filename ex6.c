@@ -225,21 +225,21 @@ void displayMenu(OwnerNode *owner)
     printf("4. Post-Order\n");
     printf("5. Alphabetical (by name)\n");
 
-    int choice = readIntSafe("Your choice: ");
+    int choice = readIntSafe("Your choice:");
 
     switch (choice)
     {
     case 1:
-        displayBFS(owner->pokedexRoot);
+        BFSGeneric(owner->pokedexRoot, displayBFS);
         break;
     case 2:
-        preOrderTraversal(owner->pokedexRoot);
+        preOrderGeneric(owner->pokedexRoot, preOrderTraversal);
         break;
     case 3:
-        inOrderTraversal(owner->pokedexRoot);
+        inOrderGeneric(owner->pokedexRoot, inOrderTraversal);
         break;
     case 4:
-        postOrderTraversal(owner->pokedexRoot);
+        postOrderGeneric(owner->pokedexRoot, postOrderTraversal);
         break;
     case 5:
         displayAlphabetical(owner->pokedexRoot);
@@ -254,13 +254,27 @@ void displayMenu(OwnerNode *owner)
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
 {
-    OwnerNode* cur = NULL;
+    int index = 1;
+    OwnerNode* cur = ownerHead;
     // list owners
     printf("\nExisting Pokedexes:\n");
-    // you need to implement a few things here :)
+    if (cur == NULL)
+        return;
+    printf("%d. %s\n", index, cur->ownerName);
+    cur = cur->next;
+    while (cur != ownerHead)
+    {
+        index++;
+        printf("%d. %s\n", index, cur->ownerName);
+        cur = cur->next;
+    }
 
-    printf("\nEntering %s's Pokedex...\n", cur->ownerName);
+    int owner = readIntSafe("Choose a Pokedex by number:");
+    cur = ownerHead;
+    for (int i = 1 ; i < owner; i++)
+        cur = cur->next;
 
+    printf("Entering %s's Pokedex...\n", cur->ownerName);
     int subChoice;
     do
     {
@@ -272,7 +286,7 @@ void enterExistingPokedexMenu()
         printf("5. Evolve Pokemon\n");
         printf("6. Back to Main\n");
 
-        subChoice = readIntSafe("Your choice: ");
+        subChoice = readIntSafe("Your choice:");
 
         switch (subChoice)
         {
@@ -499,7 +513,48 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode)
  * @return pointer to found node or NULL
  * Why we made it: BFS ensures we find nodes even in an unbalanced tree.
  */
-PokemonNode *searchPokemonBFS(PokemonNode *root, int id){}
+PokemonNode *searchPokemonBFS(PokemonNode *root, int id)
+{
+    if (root == NULL)
+        return NULL;
+    int Height = pokedexHeight(root);
+    for(int i = 1 ; i <= Height ; i++)
+    {
+        PokemonNode *temp = searchPokemonByLevel(id, root, i);
+        if(temp != NULL)
+            return temp;
+    }
+    return NULL;
+}
+
+PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level)
+{
+    if(root == NULL)
+        return NULL;
+    //when you're at the correct height
+    if(level == 1)
+    {
+        if(root->data->id == id)
+            return root;
+        return NULL;
+    }
+    PokemonNode *left = searchPokemonByLevel(id, root->left, level - 1);
+    PokemonNode *right = searchPokemonByLevel(id, root->right, level - 1);
+    if(left != NULL)
+        return left;
+    if(right != NULL)
+        return right;
+    return NULL;
+}
+
+int pokedexHeight(PokemonNode *root)
+{
+    if (root == NULL)
+        return 0;
+    int left = pokedexHeight(root->left);
+    int right = pokedexHeight(root->right);
+    return (left > right ? left : right) + 1;
+}
 
 /**
  * @brief Remove node from BST by ID if found (BST removal logic).
@@ -534,7 +589,10 @@ typedef void (*VisitNodeFunc)(PokemonNode *);///////////////////////////////////
  * @param visit function pointer for what to do with each node
  * Why we made it: BFS plus function pointers => flexible traversal.
  */
-void BFSGeneric(PokemonNode *root, VisitNodeFunc visit){}
+void BFSGeneric(PokemonNode *root, VisitNodeFunc visit)
+{
+    visit(root);
+}
 
 /**
  * @brief A generic pre-order traversal (Root-Left-Right).
@@ -542,7 +600,10 @@ void BFSGeneric(PokemonNode *root, VisitNodeFunc visit){}
  * @param visit function pointer
  * Why we made it: Another demonstration of function-pointer-based traversal.
  */
-void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
+void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
+{
+    visit(root);
+}
 
 /**
  * @brief A generic in-order traversal (Left-Root-Right).
@@ -550,7 +611,10 @@ void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
  * @param visit function pointer
  * Why we made it: Great for seeing sorted order if BST is sorted by ID.
  */
-void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
+void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
+{
+    visit(root);
+}
 
 /**
  * @brief A generic post-order traversal (Left-Right-Root).
@@ -558,7 +622,10 @@ void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
  * @param visit function pointer
  * Why we made it: Another standard traversal pattern.
  */
-void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
+void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
+{
+    visit(root);
+}
 
 /**
  * @brief Print one PokemonNode’s data: ID, Name, Type, HP, Attack, Evolve?
@@ -576,7 +643,17 @@ void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit){}
  * @param cap initial capacity
  * Why we made it: We store pointers to PokemonNodes for alphabetical sorting.
  */
-void initNodeArray(NodeArray *na, int cap){}
+void initNodeArray(NodeArray *na, int cap)
+{
+    na->capacity = cap;
+    na->nodes = (PokemonNode **)malloc(cap * sizeof(PokemonNode *));
+    if(na->nodes == NULL)
+    {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+    na->size = 0;
+}
 
 /**
  * @brief Add a PokemonNode pointer to NodeArray, realloc if needed.
@@ -584,7 +661,21 @@ void initNodeArray(NodeArray *na, int cap){}
  * @param node pointer to the node
  * Why we made it: We want a dynamic list of BST nodes for sorting.
  */
-void addNode(NodeArray *na, PokemonNode *node){}
+void addNode(NodeArray *na, PokemonNode *node)
+{
+    if(na->size == na->capacity)
+    {
+        na->nodes = realloc(na->nodes, na->capacity *= 2);
+        if(na->nodes == NULL)
+        {
+            printf("Memory reallocation failed.\n");
+            free(na->nodes);
+            return;
+        }
+    }
+    na->nodes[na->size] = node;
+    na->size++;
+}
 
 /**
  * @brief Recursively collect all nodes from the BST into a NodeArray.
@@ -592,7 +683,14 @@ void addNode(NodeArray *na, PokemonNode *node){}
  * @param na pointer to NodeArray
  * Why we made it: We gather everything for qsort.
  */
-void collectAll(PokemonNode *root, NodeArray *na){}
+void collectAll(PokemonNode *root, NodeArray *na)
+{
+    if(root == NULL)
+        return;
+    addNode(na, root);
+    collectAll(root->left, na);
+    collectAll(root->right, na);
+}
 
 /**
  * @brief Compare function for qsort (alphabetical by node->data->name).
@@ -601,42 +699,120 @@ void collectAll(PokemonNode *root, NodeArray *na){}
  * @return -1, 0, or +1
  * Why we made it: Sorting by name for alphabetical display.
  */
-int compareByNameNode(const void *a, const void *b){}
+int compareByNameNode(const void *a, const void *b)
+{
+    PokemonNode **nodeA = (PokemonNode **)a;
+    PokemonNode **nodeB = (PokemonNode **)b;
+    int cmp = strcmp((*nodeA)->data->name, (*nodeB)->data->name);
+    if(cmp == 0)
+        return 0;
+    return cmp > 0 ? 1 : -1;
+}
 
 /**
  * @brief BFS is nice, but alphabetical means we gather all nodes, sort by name, then print.
  * @param root BST root
  * Why we made it: Provide user the option to see Pokemon sorted by name.
  */
-void displayAlphabetical(PokemonNode *root){}
+void displayAlphabetical(PokemonNode *root)
+{
+    if(root == NULL)
+        return;
+    NodeArray *array = (NodeArray*)malloc(sizeof(NodeArray));
+    initNodeArray(array, pokedexHeight(root));
+    collectAll(root, array);
+
+    for(int i = 0; i < array->size - 1; i++)
+    {
+        for(int j = 0; j < array->size - i - 1; j++)
+        {
+            if(compareByNameNode(&array->nodes[j], &array->nodes[j + 1]) == 1)
+            {
+                PokemonNode *temp = array->nodes[j];
+                array->nodes[j] = array->nodes[j + 1];
+                array->nodes[j + 1] = temp;
+            }
+        }
+    }
+    for(int i = 0; i < array->size; i++)
+    {
+        printPokemonNode(array->nodes[i]);
+    }
+    free(array->nodes);
+    free(array);
+}
 
 /**
  * @brief BFS user-friendly display (level-order).
  * @param root BST root
  * Why we made it: Quick listing in BFS order.
  */
-void displayBFS(PokemonNode *root){}
+void displayBFS(PokemonNode *root)
+{
+    if(root == NULL)
+        return;
+    int height = pokedexHeight(root);
+    for(int i = 1 ; i <= height ; i++)
+        printPokemonByLevel(root, i);
+
+}
+
+void printPokemonByLevel(PokemonNode *root, int level)
+{
+    if(root == NULL)
+        return;
+    //when you're at the correct height
+    if(level == 1)
+        printPokemonNode(root);
+    else
+    {
+        printPokemonByLevel(root->left, level - 1);
+        printPokemonByLevel(root->right, level - 1);
+    }
+}
+
 
 /**
  * @brief Pre-order user-friendly display (Root->Left->Right).
  * @param root BST root
  * Why we made it: Another standard traversal for demonstration.
  */
-void preOrderTraversal(PokemonNode *root){}
+void preOrderTraversal(PokemonNode *root)
+{
+    if(root == NULL)
+        return;
+    printPokemonNode(root);
+    preOrderTraversal(root->left);
+    preOrderTraversal(root->right);
+}
 
 /**
  * @brief In-order user-friendly display (Left->Root->Right).
  * @param root BST root
  * Why we made it: Good for sorted output by ID if the tree is a BST.
  */
-void inOrderTraversal(PokemonNode *root){}
+void inOrderTraversal(PokemonNode *root)
+{
+    if(root == NULL)
+        return;
+    inOrderTraversal(root->left);
+    printPokemonNode(root);
+    inOrderTraversal(root->right);
+}
 
 /**
  * @brief Post-order user-friendly display (Left->Right->Root).
  * @param root BST root
  * Why we made it: Another standard traversal pattern.
  */
-void postOrderTraversal(PokemonNode *root){}
+void postOrderTraversal(PokemonNode *root)
+{
+    if(root == NULL)
+        return;
+    postOrderTraversal(root->left);
+    postOrderTraversal(root->right);
+    printPokemonNode(root);
+}
 
 /* ------------------------------------------------------------
    6) Pokemon-Specific
@@ -661,7 +837,25 @@ void evolvePokemon(OwnerNode *owner){}
  * @param owner pointer to the Owner
  * Why we made it: Primary user function for adding new Pokemon to an owner’s Pokedex.
  */
-void addPokemon(OwnerNode *owner){}
+void addPokemon(OwnerNode *owner)
+{
+    int pokemonId = readIntSafe("Enter ID to add:");
+    if(pokemonId <= 0 || pokemonId > 151)
+    {
+        printf("Invalid ID.\n");
+        return;
+    }
+    PokemonNode *temp = searchPokemonBFS(owner->pokedexRoot, pokemonId);
+    if(temp != NULL)
+    {
+        printf("Pokemon with ID %d is already in the Pokedex. No changes made.", pokemonId);
+        return;
+    }
+    const PokemonData *pokemon = &pokedex[pokemonId - 1];
+    PokemonNode *newPokemon = createPokemonNode(pokemon);
+    insertPokemonNode(owner->pokedexRoot, newPokemon);
+    printf("Pokemon %s (ID %d) added.\n", newPokemon->data->name, pokemonId);
+}
 
 /**
  * @brief Prompt for ID, remove that Pokemon from BST by ID.
@@ -729,7 +923,38 @@ void linkOwnerInCircularList(OwnerNode *newOwner)
  * @param target pointer to the OwnerNode
  * Why we made it: Deleting or merging owners requires removing them from the ring.
  */
-void removeOwnerFromCircularList(OwnerNode *target){}
+void removeOwnerFromCircularList(OwnerNode *target)
+{
+    if (target == NULL || ownerHead == NULL)
+        return;
+    if(target == ownerHead)
+    {
+        if(ownerHead->next == ownerHead)
+        {
+            freeOwnerNode(ownerHead);
+            ownerHead = NULL;
+            return;
+        }
+        OwnerNode *temp = ownerHead;
+        ownerHead->prev->next = ownerHead->next;
+        ownerHead->next->prev = ownerHead->prev;
+        ownerHead = ownerHead->next;
+        freeOwnerNode(temp);
+        return;
+    }
+    OwnerNode *temp = ownerHead->next;
+    while(temp != ownerHead)
+    {
+        if(target == temp)
+        {
+            temp->prev->next = temp->next;
+            temp->next->prev = temp->prev;
+            freeOwnerNode(temp);
+            return;
+        }
+    }
+    printf("owner do not exist ERROR\n");
+}
 
 /**
  * @brief Find an owner by name in the circular list.
@@ -773,13 +998,40 @@ OwnerNode *findOwnerByName(const char *name)
  * @brief Delete an entire Pokedex (owner) from the list.
  * Why we made it: Let user pick which Pokedex to remove and free everything.
  */
-void deletePokedex(void){}
+void deletePokedex()
+{
+    int index = 1;
+    OwnerNode* cur = ownerHead;
+    if (cur == NULL)
+        return;
+    printf("=== Delete a Pokedex ===\n");
+    printf("%d. %s\n", index, cur->ownerName);
+    cur = cur->next;
+    while (cur != ownerHead)
+    {
+        index++;
+        printf("%d. %s\n", index, cur->ownerName);
+        cur = cur->next;
+    }
+
+    int owner = readIntSafe("Choose a Pokedex by number:");
+    cur = ownerHead;
+    for (int i = 1 ; i < owner; i++)
+        cur = cur->next;
+
+    printf("Deleting %s's entire Pokedex...\n", cur->ownerName);
+    removeOwnerFromCircularList(cur);
+    printf("Pokedex deleted.\n");
+}
 
 /**
  * @brief Merge the second owner's Pokedex into the first, then remove the second owner.
  * Why we made it: BFS copy demonstration plus removing an owner.
  */
-void mergePokedexMenu(void){}
+void mergePokedexMenu()
+{
+
+}
 
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle

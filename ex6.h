@@ -172,6 +172,10 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode);
  */
 PokemonNode *searchPokemonBFS(PokemonNode *root, int id);
 
+PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level);
+
+int pokedexHeight(PokemonNode *root);
+
 /**
  * @brief Remove node from BST by ID if found (BST removal logic).
  * @param root BST root
@@ -289,6 +293,8 @@ void displayAlphabetical(PokemonNode *root);
  */
 void displayBFS(PokemonNode *root);
 
+void printPokemonByLevel(PokemonNode *root, int level);
+
 /**
  * @brief Pre-order user-friendly display (Root->Left->Right).
  * @param root BST root
@@ -309,6 +315,7 @@ void inOrderTraversal(PokemonNode *root);
  * Why we made it: Another standard traversal pattern.
  */
 void postOrderTraversal(PokemonNode *root);
+
 
 /* ------------------------------------------------------------
    6) Pokemon-Specific
