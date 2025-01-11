@@ -185,6 +185,8 @@ int pokedexHeight(PokemonNode *root);
  */
 PokemonNode *removeNodeBST(PokemonNode *root, int id);
 
+PokemonNode *findMin(PokemonNode *root);
+
 /**
  * @brief Combine BFS search + BST removal to remove Pokemon by ID.
  * @param root BST root
@@ -334,6 +336,10 @@ void pokemonFight(OwnerNode *owner);
  * Why we made it: Demonstrates removing an old ID, inserting the next ID.
  */
 void evolvePokemon(OwnerNode *owner);
+
+void freeDuplicate(OwnerNode *owner, int id);
+
+void addEvolution(OwnerNode *owner, int id);
 
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.

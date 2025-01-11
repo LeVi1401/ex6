@@ -255,30 +255,30 @@ void displayMenu(OwnerNode *owner)
 void enterExistingPokedexMenu()
 {
     int index = 1;
-    OwnerNode* cur = ownerHead;
+    OwnerNode* current = ownerHead;
     // list owners
     printf("\nExisting Pokedexes:\n");
-    if (cur == NULL)
+    if (current == NULL)
         return;
-    printf("%d. %s\n", index, cur->ownerName);
-    cur = cur->next;
-    while (cur != ownerHead)
+    printf("%d. %s\n", index, current->ownerName);
+    current = current->next;
+    while (current != ownerHead)
     {
         index++;
-        printf("%d. %s\n", index, cur->ownerName);
-        cur = cur->next;
+        printf("%d. %s\n", index, current->ownerName);
+        current = current->next;
     }
 
     int owner = readIntSafe("Choose a Pokedex by number:");
-    cur = ownerHead;
+    current = ownerHead;
     for (int i = 1 ; i < owner; i++)
-        cur = cur->next;
+        current = current->next;
 
-    printf("Entering %s's Pokedex...\n", cur->ownerName);
+    printf("Entering %s's Pokedex...\n", current->ownerName);
     int subChoice;
     do
     {
-        printf("\n-- %s's Pokedex Menu --\n", cur->ownerName);
+        printf("\n-- %s's Pokedex Menu --\n", current->ownerName);
         printf("1. Add Pokemon\n");
         printf("2. Display Pokedex\n");
         printf("3. Release Pokemon (by ID)\n");
@@ -291,19 +291,19 @@ void enterExistingPokedexMenu()
         switch (subChoice)
         {
         case 1:
-            addPokemon(cur);
+            addPokemon(current);
             break;
         case 2:
-            displayMenu(cur);
+            displayMenu(current);
             break;
         case 3:
-            freePokemon(cur);
+            freePokemon(current);
             break;
         case 4:
-            pokemonFight(cur);
+            pokemonFight(current);
             break;
         case 5:
-            evolvePokemon(cur);
+            evolvePokemon(current);
             break;
         case 6:
             printf("Back to Main Menu.\n");
@@ -563,7 +563,55 @@ int pokedexHeight(PokemonNode *root)
  * @return updated BST root
  * Why we made it: We handle special cases of a BST remove (0,1,2 children).
  */
-PokemonNode *removeNodeBST(PokemonNode *root, int id){}
+PokemonNode *removeNodeBST(PokemonNode *root, int id)
+{
+    if(root == NULL || id <= 0 || id > 151)
+        return NULL;
+    int currentId = root->data->id;
+    if(currentId > id)
+    {
+        root->left = removeNodeBST(root->left, id);
+        return root;
+    }
+    if(currentId < id)
+    {
+        root->right = removeNodeBST(root->right, id);
+        return root;
+    }
+    if(root->left == NULL && root->right == NULL)
+    {
+        freePokemonNode(root);
+        root = NULL;
+        return NULL;
+    }
+    if(root->left == NULL)
+    {
+        PokemonNode *temp = root;
+        root = root->right;
+        freePokemonNode(temp);
+        return root;
+    }
+    if(root->right == NULL)
+    {
+        PokemonNode *temp = root;
+        root = root->left;
+        freePokemonNode(temp);
+        return root;
+    }
+    PokemonNode *successor = findMin(root->right);
+    root->data = successor->data;
+    root->right = removeNodeBST(root->right, successor->data->id);
+    return root;
+}
+
+PokemonNode *findMin(PokemonNode *root)
+{
+    if(root == NULL)
+        return NULL;
+    if(root->left == NULL)
+        return root;
+    return findMin(root->left);
+}
 
 /**
  * @brief Combine BFS search + BST removal to remove Pokemon by ID.
@@ -572,7 +620,14 @@ PokemonNode *removeNodeBST(PokemonNode *root, int id){}
  * @return updated BST root
  * Why we made it: BFS confirms existence, then removeNodeBST does the removal.
  */
-PokemonNode *removePokemonByID(PokemonNode *root, int id){}
+PokemonNode *removePokemonByID(PokemonNode *root, int id)
+{
+    if (root == NULL)
+        return NULL;
+    if(searchPokemonBFS(root, id) == NULL)
+        return root;
+    return removeNodeBST(root, id);
+}
 
 /* ------------------------------------------------------------
    4) Generic BST Traversals (Function Pointers)
@@ -823,15 +878,76 @@ void postOrderTraversal(PokemonNode *root)
  * @param owner pointer to the Owner
  * Why we made it: Fun demonstration of BFS and custom formula for battles.
  */
-void pokemonFight(OwnerNode *owner){}
+void pokemonFight(OwnerNode *owner)
+{
+    if(owner == NULL)
+        return;
+    int firstId = readIntSafe("Enter ID of the first Pokemon:");
+    int secondId = readIntSafe("Enter ID of the second Pokemon:");
+    if(searchPokemonBFS(owner->pokedexRoot, firstId) == NULL ||
+        searchPokemonBFS(owner->pokedexRoot, secondId) == NULL)
+    {
+        printf("One or both Pokemon IDs not found.\n");
+        return;
+    }
+    double firstPokemon = pokedex[firstId - 1].attack * 1.5 + pokedex[firstId - 1].hp * 1.2;
+    double secondPokemon = pokedex[secondId - 1].attack * 1.5 + pokedex[secondId - 1].hp * 1.2;
+    printf("Pokemon 1: %s (Score = %.2f)\n", pokedex[firstId - 1].name, firstPokemon);
+    printf("Pokemon 2: %s (Score = %.2f)\n", pokedex[secondId - 1].name, secondPokemon);
+    if(firstPokemon > secondPokemon)
+        printf("%s wins!\n", pokedex[firstId - 1].name);
+    else
+        printf("%s wins!\n", pokedex[secondId - 1].name);
+}
 
 /**
  * @brief Evolve a Pokemon (ID -> ID+1) if allowed.
  * @param owner pointer to the Owner
  * Why we made it: Demonstrates removing an old ID, inserting the next ID.
  */
-void evolvePokemon(OwnerNode *owner){}
+void evolvePokemon(OwnerNode *owner)
+{
+    if(owner == NULL)
+        return;
+    if(owner->pokedexRoot == NULL)
+    {
+        printf("Pokedex is empty.\n");
+        return;
+    }
+    int id = readIntSafe("Enter ID of Pokemon to evolve:");
+    if(searchPokemonBFS(owner->pokedexRoot, id) == NULL)
+    {
+        printf("Pokemon not found\n");
+        return;
+    }
+    if(pokedex[id - 1].CAN_EVOLVE == CANNOT_EVOLVE)
+    {
+        printf("Pokemon can't be evolved.\n");
+        return;
+    }
+    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL)
+    {
+        freeDuplicate(owner, id + 1);
+        addEvolution(owner, id + 1);
+    }
+    else
+    {
+        addEvolution(owner, id + 1);
+    }
+    printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
+}
 
+void freeDuplicate(OwnerNode *owner, int id)
+{
+    owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, id);
+}
+
+void addEvolution(OwnerNode *owner, int id)
+{
+    const PokemonData *pokemon = &pokedex[id - 1];
+    PokemonNode *newPokemon = createPokemonNode(pokemon);
+    insertPokemonNode(owner->pokedexRoot, newPokemon);
+}
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.
  * @param owner pointer to the Owner
@@ -862,8 +978,22 @@ void addPokemon(OwnerNode *owner)
  * @param owner pointer to the Owner
  * Why we made it: Another user function for releasing a Pokemon.
  */
-void freePokemon(OwnerNode *owner){}
-
+void freePokemon(OwnerNode *owner)
+{
+    if(owner->pokedexRoot == NULL)
+    {
+        printf("No Pokemon to release.\n");
+        return;
+    }
+    int pokemonId = readIntSafe("Enter Pokemon ID to release:");
+    if(searchPokemonBFS(owner->pokedexRoot, pokemonId) != NULL)
+    {
+        owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, pokemonId);
+        printf("pokemon with ID %d is removed.\n", pokemonId);
+    }
+    else
+        printf("Pokemon with ID %d not found.\n", pokemonId);
+}
 
 /* ------------------------------------------------------------
    8) Sorting Owners (Bubble Sort on Circular List)
