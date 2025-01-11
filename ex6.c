@@ -254,6 +254,11 @@ void displayMenu(OwnerNode *owner)
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
 {
+    if(ownerHead == NULL)
+    {
+        printf("No existing Pokedexes.\n");
+        return;
+    }
     int index = 1;
     OwnerNode* current = ownerHead;
     // list owners
@@ -376,7 +381,7 @@ void openPokedexMenu()
     name = getDynamicInput();
     if(findOwnerByName(name) != NULL)
     {
-        printf("Name already in use\n");
+        printf("Owner '%s' already exists. Not creating a new Pokedex.\n", name);
         free(name);
         return;
     }
@@ -1036,7 +1041,10 @@ void sortOwners()
 {
     int amount = ownersAmount();
     if(amount == 0 || amount == 1)
+    {
+        printf("0 or 1 owners only => no need to sort.\n");
         return;
+    }
     for(int i = 0 ; i < amount ; i++)
     {
         OwnerNode* temp = ownerHead;
@@ -1285,6 +1293,11 @@ void insertPokemonByLevel(PokemonNode* root, int level, OwnerNode* owner)
  */
 void printOwnersCircular()
 {
+    if(ownerHead == NULL)
+    {
+        printf("No owners.\n");
+        return;
+    }
     char direction;
     printf("Enter direction (F or B):\n");
     scanf(" %c", &direction);
