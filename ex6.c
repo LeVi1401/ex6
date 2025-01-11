@@ -400,14 +400,13 @@ PokemonNode *createPokemonNode(const PokemonData *data)
         printf("Memory allocation failed.\n");
         return NULL;
     }
-    pokeNode->data = (PokemonData *)malloc(sizeof(PokemonData));
     if (pokeNode->data == NULL)
     {
         printf("Memory allocation failed.\n");
         free(pokeNode);
         return NULL;
     }
-    *pokeNode->data = *data;
+    pokeNode->data = data;
     pokeNode->left = NULL;
     pokeNode->right = NULL;
     return pokeNode;
@@ -927,7 +926,7 @@ void evolvePokemon(OwnerNode *owner)
         return;
     }
     PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
-    *pokemon->data = pokedex[pokemon->data->id];
+    pokemon->data = &pokedex[pokemon->data->id];
     if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL && searchPokemonBFS(owner->pokedexRoot, id + 1) != pokemon)
         freeDuplicate(owner->pokedexRoot, id + 1, pokemon);
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
