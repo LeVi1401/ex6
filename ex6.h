@@ -337,9 +337,7 @@ void pokemonFight(OwnerNode *owner);
  */
 void evolvePokemon(OwnerNode *owner);
 
-void freeDuplicate(OwnerNode *owner, int id);
-
-void addEvolution(OwnerNode *owner, int id);
+PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node);
 
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.

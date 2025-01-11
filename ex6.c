@@ -918,37 +918,63 @@ void evolvePokemon(OwnerNode *owner)
     int id = readIntSafe("Enter ID of Pokemon to evolve:");
     if(searchPokemonBFS(owner->pokedexRoot, id) == NULL)
     {
-        printf("Pokemon not found\n");
+        printf("No Pokemon with ID %d found.\n", id);
         return;
     }
     if(pokedex[id - 1].CAN_EVOLVE == CANNOT_EVOLVE)
     {
-        printf("Pokemon can't be evolved.\n");
+        printf("Pokemon can't evolve.\n");
         return;
     }
-    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL)
-    {
-        freeDuplicate(owner, id + 1);
-        addEvolution(owner, id + 1);
-    }
-    else
-    {
-        addEvolution(owner, id + 1);
-    }
+    PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
+    *pokemon->data = pokedex[pokemon->data->id];
+    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL && searchPokemonBFS(owner->pokedexRoot, id + 1) != pokemon)
+        freeDuplicate(owner->pokedexRoot, id + 1, pokemon);
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
 }
 
-void freeDuplicate(OwnerNode *owner, int id)
+PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
 {
-    owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, id);
+    int currentId = root->data->id;
+    if(currentId > id)
+    {
+        root->left = removeNodeBST(root->left, id);
+        return root;
+    }
+    if(currentId < id)
+    {
+        root->right = removeNodeBST(root->right, id);
+        return root;
+    }
+    if(root == node)
+    {
+        if(root->left == NULL && root->right == NULL)
+        {
+            freePokemonNode(root);
+            root = NULL;
+            return NULL;
+        }
+        if(root->left == NULL)
+        {
+            PokemonNode *temp = root;
+            root = root->right;
+            freePokemonNode(temp);
+            return root;
+        }
+        if(root->right == NULL)
+        {
+            PokemonNode *temp = root;
+            root = root->left;
+            freePokemonNode(temp);
+            return root;
+        }
+        PokemonNode *successor = findMin(root->right);
+        root->data = successor->data;
+        root->right = removeNodeBST(root->right, successor->data->id);
+    }
+    return root;
 }
 
-void addEvolution(OwnerNode *owner, int id)
-{
-    const PokemonData *pokemon = &pokedex[id - 1];
-    PokemonNode *newPokemon = createPokemonNode(pokemon);
-    insertPokemonNode(owner->pokedexRoot, newPokemon);
-}
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.
  * @param owner pointer to the Owner
