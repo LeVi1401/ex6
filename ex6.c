@@ -922,7 +922,7 @@ void evolvePokemon(OwnerNode *owner)
     }
     if(pokedex[id - 1].CAN_EVOLVE == CANNOT_EVOLVE)
     {
-        printf("Pokemon can't evolve.\n");
+        printf("Cannot evolve.\n");
         return;
     }
     if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL)
