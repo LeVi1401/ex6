@@ -477,11 +477,14 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode)
 {
     if (root == NULL)
         return NULL;
+    if (newNode == NULL)
+        return root;
     if(root->data->id > newNode->data->id)
     {
         if (root->left == NULL)
         {
-            root->left = newNode;
+            PokemonNode* pokemon = createPokemonNode(newNode->data);
+            root->left = pokemon;
             return root;
         }
         root->left = insertPokemonNode(root->left, newNode);
@@ -491,7 +494,8 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode)
     {
         if (root->right == NULL)
         {
-            root->right = newNode;
+            PokemonNode* pokemon = createPokemonNode(newNode->data);
+            root->right = pokemon;
             return root;
         }
         root->right = insertPokemonNode(root->right, newNode);
@@ -525,7 +529,6 @@ PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level)
 {
     if(root == NULL)
         return NULL;
-    //when you're at the correct height
     if(level == 1)
     {
         if(root->data->id == id)
@@ -803,14 +806,12 @@ void displayBFS(PokemonNode *root)
     int height = pokedexHeight(root);
     for(int i = 1 ; i <= height ; i++)
         printPokemonByLevel(root, i);
-
 }
 
 void printPokemonByLevel(PokemonNode *root, int level)
 {
     if(root == NULL)
         return;
-    //when you're at the correct height
     if(level == 1)
         printPokemonNode(root);
     else
@@ -919,10 +920,17 @@ void evolvePokemon(OwnerNode *owner)
         printf("Pokemon can't evolve.\n");
         return;
     }
-    PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
-    pokemon->data = &pokedex[pokemon->data->id];
-    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL && searchPokemonBFS(owner->pokedexRoot, id + 1) != pokemon)
+    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL)
+    {
+        PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
+        pokemon->data = &pokedex[pokemon->data->id];
         freeDuplicate(owner->pokedexRoot, id + 1, pokemon);
+    }
+    else
+    {
+        PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
+        pokemon->data = &pokedex[pokemon->data->id];
+    }
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
 }
 
@@ -931,12 +939,12 @@ PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
     int currentId = root->data->id;
     if(currentId > id)
     {
-        root->left = removeNodeBST(root->left, id);
+        root->left = freeDuplicate(root->left, id, node);
         return root;
     }
     if(currentId < id)
     {
-        root->right = removeNodeBST(root->right, id);
+        root->right = freeDuplicate(root->right, id, node);
         return root;
     }
     if(root == node)
@@ -963,7 +971,7 @@ PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
         }
         PokemonNode *successor = findMin(root->right);
         root->data = successor->data;
-        root->right = removeNodeBST(root->right, successor->data->id);
+        root->right = freeDuplicate(root->right, successor->data->id, successor);
     }
     return root;
 }
@@ -984,12 +992,13 @@ void addPokemon(OwnerNode *owner)
     PokemonNode *temp = searchPokemonBFS(owner->pokedexRoot, pokemonId);
     if(temp != NULL)
     {
-        printf("Pokemon with ID %d is already in the Pokedex. No changes made.", pokemonId);
+        printf("Pokemon with ID %d is already in the Pokedex. No changes made.\n", pokemonId);
         return;
     }
     const PokemonData *pokemon = &pokedex[pokemonId - 1];
     PokemonNode *newPokemon = createPokemonNode(pokemon);
     insertPokemonNode(owner->pokedexRoot, newPokemon);
+    freePokemonNode(newPokemon);
     printf("Pokemon %s (ID %d) added.\n", newPokemon->data->name, pokemonId);
 }
 
@@ -1141,6 +1150,7 @@ void removeOwnerFromCircularList(OwnerNode *target)
             freeOwnerNode(temp);
             return;
         }
+        temp = temp->next;
     }
     printf("owner do not exist ERROR\n");
 }
@@ -1190,26 +1200,26 @@ OwnerNode *findOwnerByName(const char *name)
 void deletePokedex()
 {
     int index = 1;
-    OwnerNode* cur = ownerHead;
-    if (cur == NULL)
+    OwnerNode* current = ownerHead;
+    if (current == NULL)
         return;
     printf("=== Delete a Pokedex ===\n");
-    printf("%d. %s\n", index, cur->ownerName);
-    cur = cur->next;
-    while (cur != ownerHead)
+    printf("%d. %s\n", index, current->ownerName);
+    current = current->next;
+    while (current != ownerHead)
     {
         index++;
-        printf("%d. %s\n", index, cur->ownerName);
-        cur = cur->next;
+        printf("%d. %s\n", index, current->ownerName);
+        current = current->next;
     }
 
     int owner = readIntSafe("Choose a Pokedex by number:");
-    cur = ownerHead;
+    current = ownerHead;
     for (int i = 1 ; i < owner; i++)
-        cur = cur->next;
+        current = current->next;
 
-    printf("Deleting %s's entire Pokedex...\n", cur->ownerName);
-    removeOwnerFromCircularList(cur);
+    printf("Deleting %s's entire Pokedex...\n", current->ownerName);
+    removeOwnerFromCircularList(current);
     printf("Pokedex deleted.\n");
 }
 
@@ -1217,7 +1227,53 @@ void deletePokedex()
  * @brief Merge the second owner's Pokedex into the first, then remove the second owner.
  * Why we made it: BFS copy demonstration plus removing an owner.
  */
-void mergePokedexMenu(){}
+void mergePokedexMenu()
+{
+    if (ownerHead == NULL)
+    {
+        printf("Not enough owners to merge.\n");
+        return;
+    }
+    if (ownerHead->next == ownerHead)
+    {
+        printf("Not enough owners to merge.\n");
+        return;
+    }
+    printf("=== Merge Pokedexes ===\n");
+    printf("Enter name of first owner:\n");
+    char* name1 = getDynamicInput();
+    printf("Enter name of second owner:\n");
+    char* name2 = getDynamicInput();
+    printf("Merging %s and %s...\n", name1, name2);
+    OwnerNode* firstOwner = findOwnerByName(name1);
+    OwnerNode* secondOwner = findOwnerByName(name2);
+    if (firstOwner == NULL || secondOwner == NULL)
+        return;
+    free(name1);
+    free(name2);
+
+    int height = pokedexHeight(secondOwner->pokedexRoot);
+    for (int i = 1; i <= height; i++)
+    {
+        insertPokemonByLevel(secondOwner->pokedexRoot, i, firstOwner);
+    }
+    removeOwnerFromCircularList(secondOwner);
+}
+
+void insertPokemonByLevel(PokemonNode* root, int level, OwnerNode* owner)
+{
+    if(root == NULL)
+        return;
+    if (level == 1)
+    {
+        insertPokemonNode(owner->pokedexRoot, root);
+    }
+    else
+    {
+        insertPokemonByLevel(root->left, level - 1, owner);
+        insertPokemonByLevel(root->right, level - 1, owner);
+    }
+}
 
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle
