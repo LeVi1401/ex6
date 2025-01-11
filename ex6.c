@@ -400,12 +400,6 @@ PokemonNode *createPokemonNode(const PokemonData *data)
         printf("Memory allocation failed.\n");
         return NULL;
     }
-    if (pokeNode->data == NULL)
-    {
-        printf("Memory allocation failed.\n");
-        free(pokeNode);
-        return NULL;
-    }
     pokeNode->data = data;
     pokeNode->left = NULL;
     pokeNode->right = NULL;
