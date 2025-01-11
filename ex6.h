@@ -384,6 +384,8 @@ void sortOwners(void);
  */
 void swapOwnerData(OwnerNode *a, OwnerNode *b);
 
+int ownersAmount();
+
 /* ------------------------------------------------------------
    9) Circular List Linking & Searching
    ------------------------------------------------------------ */

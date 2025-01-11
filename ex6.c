@@ -470,6 +470,7 @@ void freeOwnerNode(OwnerNode *owner)
     free(owner->ownerName);
     freePokemonTree(owner->pokedexRoot);
     free(owner);
+    //owner = NULL;
 }
 
 /**
@@ -1003,7 +1004,24 @@ void freePokemon(OwnerNode *owner)
  * @brief Sort the circular owners list by name.
  * Why we made it: Another demonstration of pointer manipulation + sorting logic.
  */
-void sortOwners(void){}
+void sortOwners()
+{
+    int amount = ownersAmount();
+    if(amount == 0 || amount == 1)
+        return;
+    for(int i = 0 ; i < amount ; i++)
+    {
+        OwnerNode* temp = ownerHead;
+        for(int j = 0 ; j < amount - i; j++, temp = temp->next)
+        {
+            if(strcmp(temp->ownerName, temp->next->ownerName) > 0)
+            {
+                swapOwnerData(temp, temp->next);
+            }
+        }
+    }
+    printf("Owners sorted by name.\n");
+}
 
 /**
  * @brief Helper to swap name & pokedexRoot in two OwnerNode.
@@ -1011,7 +1029,29 @@ void sortOwners(void){}
  * @param b pointer to second owner
  * Why we made it: Used internally by bubble sort to swap data.
  */
-void swapOwnerData(OwnerNode *a, OwnerNode *b){}
+void swapOwnerData(OwnerNode *a, OwnerNode *b)
+{
+    PokemonNode* temp = a->pokedexRoot;
+    a->pokedexRoot = b->pokedexRoot;
+    b->pokedexRoot = temp;
+    char* tempName = a->ownerName;
+    a->ownerName = b->ownerName;
+    b->ownerName = tempName;
+}
+
+int ownersAmount()
+{
+    if(ownerHead == NULL)
+        return 0;
+    int count = 1;
+    OwnerNode* owner = ownerHead->next;
+    while(owner != ownerHead)
+    {
+        count++;
+        owner = owner->next;
+    }
+    return count;
+}
 
 /* ------------------------------------------------------------
    9) Circular List Linking & Searching
@@ -1158,10 +1198,7 @@ void deletePokedex()
  * @brief Merge the second owner's Pokedex into the first, then remove the second owner.
  * Why we made it: BFS copy demonstration plus removing an owner.
  */
-void mergePokedexMenu()
-{
-
-}
+void mergePokedexMenu(){}
 
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle
@@ -1171,7 +1208,28 @@ void mergePokedexMenu()
  * @brief Print owners left or right from head, repeating as many times as user wants.
  * Why we made it: Demonstrates stepping through a circular list in a chosen direction.
  */
-void printOwnersCircular(void){}
+void printOwnersCircular()
+{
+    char direction;
+    printf("Enter direction (F or B):\n");
+    scanf(" %c", &direction);
+    scanf("%*c");
+    if (direction == 'F' || direction == 'f')
+        direction = 'F';
+    else if (direction == 'B' || direction == 'b')
+        direction = 'B';
+    int steps = readIntSafe("How many prints?");
+    OwnerNode* current = ownerHead;
+    for(int i = 0 ; i < steps ; i++)
+    {
+        printf("[%d] %s\n", i + 1, current->ownerName);
+        if(direction == 'F')
+            current = current->next;
+        else
+            current = current->prev;
+    }
+
+}
 
 /* ------------------------------------------------------------
    12) Cleanup All Owners at Program End
@@ -1181,4 +1239,18 @@ void printOwnersCircular(void){}
  * @brief Frees every remaining owner in the circular list, setting ownerHead = NULL.
  * Why we made it: Ensures a squeaky-clean exit with no leftover memory.
  */
-void freeAllOwners(void){}
+void freeAllOwners()
+{
+    if (ownerHead == NULL)
+        return;
+    OwnerNode* current = ownerHead->next;
+    OwnerNode* temp;
+    while(current != ownerHead)
+    {
+        temp = current;
+        current = current->next;
+        freeOwnerNode(temp);
+    }
+    freeOwnerNode(current);
+    ownerHead = NULL;
+}
