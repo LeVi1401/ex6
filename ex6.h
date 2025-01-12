@@ -172,8 +172,10 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode);
  */
 PokemonNode *searchPokemonBFS(PokemonNode *root, int id);
 
+/**goes over the bst by level by searching for a specific level (distance from the root) to check the pokemon*/
 PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level);
 
+/**returns the maximum height of the tree (the farther distance from a leaf to the root)*/
 int pokedexHeight(PokemonNode *root);
 
 /**
@@ -185,6 +187,7 @@ int pokedexHeight(PokemonNode *root);
  */
 PokemonNode *removeNodeBST(PokemonNode *root, int id);
 
+/**finds a replacement to the pokemon we want to release when that node has 2 children*/
 PokemonNode *findMin(PokemonNode *root);
 
 /**
@@ -295,6 +298,7 @@ void displayAlphabetical(PokemonNode *root);
  */
 void displayBFS(PokemonNode *root);
 
+/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
 void printPokemonByLevel(PokemonNode *root, int level);
 
 /**
@@ -337,6 +341,9 @@ void pokemonFight(OwnerNode *owner);
  */
 void evolvePokemon(OwnerNode *owner);
 
+/**the same as the normal removeNodeBST function
+ *but here the function also checks whether the pointer with the
+ *correct pokemon id is the same as the one we just evolved*/
 PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node);
 
 /**
@@ -382,6 +389,7 @@ void sortOwners(void);
  */
 void swapOwnerData(OwnerNode *a, OwnerNode *b);
 
+/** returns the amount of owners in the circular linked list for the sort function*/
 int ownersAmount();
 
 /* ------------------------------------------------------------
@@ -438,7 +446,7 @@ void deletePokedex(void);
  */
 void mergePokedexMenu(void);
 
-PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot);
+PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot);af
 
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle

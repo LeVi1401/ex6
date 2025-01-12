@@ -533,7 +533,7 @@ PokemonNode *searchPokemonBFS(PokemonNode *root, int id)
     }
     return NULL;
 }
-
+/**goes over the bst by level by searching for a specific level (distance from the root) to check the pokemon*/
 PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level)
 {
     if(root == NULL)
@@ -552,7 +552,7 @@ PokemonNode *searchPokemonByLevel(int id, PokemonNode *root, int level)
         return right;
     return NULL;
 }
-
+/**returns the maximum height of the tree (the farther distance from a leaf to the root)*/
 int pokedexHeight(PokemonNode *root)
 {
     if (root == NULL)
@@ -610,6 +610,7 @@ PokemonNode *removeNodeBST(PokemonNode *root, int id)
     return root;
 }
 
+/**finds a replacement to the pokemon we want to release when that node has 2 children*/
 PokemonNode *findMin(PokemonNode *root)
 {
     if(root == NULL)
@@ -642,7 +643,7 @@ PokemonNode *removePokemonByID(PokemonNode *root, int id)
 // Please notice, it's not really generic, it's just a demonstration of function pointers.
 // so don't be confused by the name, but please remember that you must use it.
 
-typedef void (*VisitNodeFunc)(PokemonNode *);//////////////////////////////////////////////////////////////////////////////
+typedef void (*VisitNodeFunc)(PokemonNode *);
 
 /**
  * @brief Generic BFS traversal: call visit() on each node (level-order).
@@ -817,6 +818,7 @@ void displayBFS(PokemonNode *root)
         printPokemonByLevel(root, i);
 }
 
+/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
 void printPokemonByLevel(PokemonNode *root, int level)
 {
     if(root == NULL)
@@ -948,6 +950,9 @@ void evolvePokemon(OwnerNode *owner)
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
 }
 
+/**the same as the normal removeNodeBST function
+ *but here the function also checks whether the pointer with the
+ *correct pokemon id is the same as the one we just evolved*/
 PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
 {
     int currentId = root->data->id;
@@ -1084,6 +1089,7 @@ void swapOwnerData(OwnerNode *a, OwnerNode *b)
     b->ownerName = tempName;
 }
 
+/** returns the amount of owners in the circular linked list for the sort function*/
 int ownersAmount()
 {
     if(ownerHead == NULL)
@@ -1199,18 +1205,6 @@ OwnerNode *findOwnerByName(const char *name)
    ------------------------------------------------------------ */
 
 /**
- * @brief Let user pick an existing Pokedex (owner) by number, then sub-menu.
- * Why we made it: This is the main interface for adding/fighting/evolving, etc.
- */
-//void enterExistingPokedexMenu(void){}
-
-/**
- * @brief Creates a new Pokedex (prompt for name, check uniqueness, choose starter).
- * Why we made it: The main entry for building a brand-new Pokedex.
- */
-//void openPokedexMenu(void){}
-
-/**
  * @brief Delete an entire Pokedex (owner) from the list.
  * Why we made it: Let user pick which Pokedex to remove and free everything.
  */
@@ -1282,6 +1276,7 @@ void mergePokedexMenu()
     free(name2);
 }
 
+/**goes over the pokedex of the second owner by level by searching for a specific level (distance from the root) to add to the first owner's pokedex*/
 PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot)
 {
     if(root == NULL)
