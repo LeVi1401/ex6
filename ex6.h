@@ -438,7 +438,7 @@ void deletePokedex(void);
  */
 void mergePokedexMenu(void);
 
-void insertPokemonByLevel(PokemonNode* root, int level, OwnerNode* owner);
+PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot);
 
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle

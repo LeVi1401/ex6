@@ -403,6 +403,7 @@ PokemonNode *createPokemonNode(const PokemonData *data)
     if (pokeNode == NULL)
     {
         printf("Memory allocation failed.\n");
+        free(pokeNode);
         return NULL;
     }
     pokeNode->data = data;
@@ -1272,24 +1273,25 @@ void mergePokedexMenu()
     int height = pokedexHeight(secondOwner->pokedexRoot);
     for (int i = 1; i <= height; i++)
     {
-        insertPokemonByLevel(secondOwner->pokedexRoot, i, firstOwner);
+        firstOwner->pokedexRoot = insertPokemonByLevel(secondOwner->pokedexRoot, i, firstOwner->pokedexRoot);
     }
     removeOwnerFromCircularList(secondOwner);
 }
 
-void insertPokemonByLevel(PokemonNode* root, int level, OwnerNode* owner)
+PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot)
 {
     if(root == NULL)
-        return;
+        return NULL;
     if (level == 1)
     {
-        insertPokemonNode(owner->pokedexRoot, root);
+        ownerRoot = insertPokemonNode(ownerRoot, root);
     }
     else
     {
-        insertPokemonByLevel(root->left, level - 1, owner);
-        insertPokemonByLevel(root->right, level - 1, owner);
+        insertPokemonByLevel(root->left, level - 1, ownerRoot);
+        insertPokemonByLevel(root->right, level - 1, ownerRoot);
     }
+    return ownerRoot;
 }
 
 /* ------------------------------------------------------------
