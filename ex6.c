@@ -921,7 +921,7 @@ void evolvePokemon(OwnerNode *owner)
         return;
     if(owner->pokedexRoot == NULL)
     {
-        printf("Pokedex is empty.\n");
+        printf("Cannot evolve. Pokedex empty.\n");
         return;
     }
     int id = readIntSafe("Enter ID of Pokemon to evolve: ");
@@ -1221,7 +1221,7 @@ void deletePokedex()
     OwnerNode* current = ownerHead;
     if (current == NULL)
         return;
-    printf("=== Delete a Pokedex ===\n");
+    printf("\n=== Delete a Pokedex ===\n");
     printf("%d. %s\n", index, current->ownerName);
     current = current->next;
     while (current != ownerHead)
@@ -1231,7 +1231,7 @@ void deletePokedex()
         current = current->next;
     }
 
-    int owner = readIntSafe("Choose a Pokedex by number: ");
+    int owner = readIntSafe("Choose a Pokedex to delete by number: ");
     current = ownerHead;
     for (int i = 1 ; i < owner; i++)
         current = current->next;
@@ -1257,25 +1257,27 @@ void mergePokedexMenu()
         printf("Not enough owners to merge.\n");
         return;
     }
-    printf("=== Merge Pokedexes ===\n");
-    printf("Enter name of first owner:\n");
+    printf("\n=== Merge Pokedexes ===\n");
+    printf("Enter name of first owner: ");
     char* name1 = getDynamicInput();
-    printf("Enter name of second owner:\n");
+    printf("Enter name of second owner: ");
     char* name2 = getDynamicInput();
     printf("Merging %s and %s...\n", name1, name2);
     OwnerNode* firstOwner = findOwnerByName(name1);
     OwnerNode* secondOwner = findOwnerByName(name2);
     if (firstOwner == NULL || secondOwner == NULL)
         return;
-    free(name1);
-    free(name2);
 
     int height = pokedexHeight(secondOwner->pokedexRoot);
     for (int i = 1; i <= height; i++)
     {
         firstOwner->pokedexRoot = insertPokemonByLevel(secondOwner->pokedexRoot, i, firstOwner->pokedexRoot);
     }
+    printf("Merge completed.\n");
     removeOwnerFromCircularList(secondOwner);
+    printf("Owner '%s' has been removed after merging.\n", name2);
+    free(name1);
+    free(name2);
 }
 
 PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot)
@@ -1310,7 +1312,7 @@ void printOwnersCircular()
         return;
     }
     char direction;
-    printf("Enter direction (F or B):\n");
+    printf("Enter direction (F or B): ");
     scanf(" %c", &direction);
     scanf("%*c");
     if (direction == 'F' || direction == 'f')
