@@ -446,6 +446,7 @@ void deletePokedex(void);
  */
 void mergePokedexMenu(void);
 
+/**goes over the pokedex of the second owner by level by searching for a specific level (distance from the root) to add to the first owner's pokedex*/
 PokemonNode* insertPokemonByLevel(PokemonNode* root, int level, PokemonNode* ownerRoot);af
 
 /* ------------------------------------------------------------
