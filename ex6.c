@@ -212,7 +212,7 @@ void printPokemonNode(PokemonNode *node)
 // --------------------------------------------------------------
 void displayMenu(OwnerNode *owner)
 {
-    if (!owner->pokedexRoot)
+    if (owner->pokedexRoot == NULL)
     {
         printf("Pokedex is empty.\n");
         return;
@@ -480,10 +480,14 @@ void freeOwnerNode(OwnerNode *owner)
  */
 PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode)
 {
-    if (root == NULL)
-        return NULL;
     if (newNode == NULL)
         return root;
+    if (root == NULL)
+    {
+        PokemonNode* pokemon = createPokemonNode(newNode->data);
+        root = pokemon;
+        return root;
+    }
     if(root->data->id > newNode->data->id)
     {
         if (root->left == NULL)
@@ -1007,7 +1011,7 @@ void addPokemon(OwnerNode *owner)
     }
     const PokemonData *pokemon = &pokedex[pokemonId - 1];
     PokemonNode *newPokemon = createPokemonNode(pokemon);
-    insertPokemonNode(owner->pokedexRoot, newPokemon);
+    owner->pokedexRoot = insertPokemonNode(owner->pokedexRoot, newPokemon);
     freePokemonNode(newPokemon);
     printf("Pokemon %s (ID %d) added.\n", newPokemon->data->name, pokemonId);
 }
