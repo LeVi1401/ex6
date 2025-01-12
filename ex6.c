@@ -1220,7 +1220,10 @@ void deletePokedex()
     int index = 1;
     OwnerNode* current = ownerHead;
     if (current == NULL)
+    {
+        printf("No existing Pokedexes to delete.\n");
         return;
+    }
     printf("\n=== Delete a Pokedex ===\n");
     printf("%d. %s\n", index, current->ownerName);
     current = current->next;
