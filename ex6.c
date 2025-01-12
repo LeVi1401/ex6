@@ -726,7 +726,7 @@ void addNode(NodeArray *na, PokemonNode *node)
 {
     if(na->size == na->capacity)
     {
-        na->nodes = realloc(na->nodes, na->capacity *= 2);
+        na->nodes = (PokemonNode**)realloc(na->nodes, (na->capacity * 2) * sizeof(PokemonNode*));
         if(na->nodes == NULL)
         {
             printf("Memory reallocation failed.\n");
