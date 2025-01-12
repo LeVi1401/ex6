@@ -390,7 +390,7 @@ void openPokedexMenu()
                 "2. Charmander\n"
                 "3. Squirtle\n");
     starter = readIntSafe("Your choice: ");
-    PokemonNode* pokemon = createPokemonNode(&pokedex[(starter-1)*3]);
+    PokemonNode* pokemon = createPokemonNode(&pokedex[(starter - 1) * 3]);
     OwnerNode* newOwner = createOwner(name, pokemon);
     linkOwnerInCircularList(newOwner);
     printf("New Pokedex created for %s with starter %s.", newOwner->ownerName, newOwner->pokedexRoot->data->name);
@@ -428,8 +428,7 @@ OwnerNode *createOwner(char *ownerName, PokemonNode *starter)
         return NULL;
     }
     ownerNode->ownerName = ownerName;
-    PokemonNode *pokeNode = createPokemonNode(starter->data);
-    ownerNode->pokedexRoot = pokeNode;
+    ownerNode->pokedexRoot = starter;
     ownerNode->next = NULL;
     ownerNode->prev = NULL;
     return ownerNode;
