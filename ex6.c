@@ -952,7 +952,9 @@ void evolvePokemon(OwnerNode *owner)
 
 /**the same as the normal removeNodeBST function
  *but here the function also checks whether the pointer with the
- *correct pokemon id is the same as the one we just evolved*/
+ *correct pokemon id is the same as the one we just evolved
+ * I did it in order to release the pokemon we just evolved in case he was already in the pokedex as requested
+ */
 PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
 {
     int currentId = root->data->id;
@@ -992,6 +994,7 @@ PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
         root->data = successor->data;
         root->right = freeDuplicate(root->right, successor->data->id, successor);
     }
+    root->left = freeDuplicate(root->left, id, node);
     return root;
 }
 
