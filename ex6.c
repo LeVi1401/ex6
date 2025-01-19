@@ -230,16 +230,16 @@ void displayMenu(OwnerNode *owner)
     switch (choice)
     {
     case 1:
-        BFSGeneric(owner->pokedexRoot, displayBFS);
+        BFSGeneric(owner->pokedexRoot, printPokemonNode);
         break;
     case 2:
-        preOrderGeneric(owner->pokedexRoot, preOrderTraversal);
+        preOrderGeneric(owner->pokedexRoot, printPokemonNode);
         break;
     case 3:
-        inOrderGeneric(owner->pokedexRoot, inOrderTraversal);
+        inOrderGeneric(owner->pokedexRoot, printPokemonNode);
         break;
     case 4:
-        postOrderGeneric(owner->pokedexRoot, postOrderTraversal);
+        postOrderGeneric(owner->pokedexRoot, printPokemonNode);
         break;
     case 5:
         displayAlphabetical(owner->pokedexRoot);
@@ -653,7 +653,25 @@ typedef void (*VisitNodeFunc)(PokemonNode *);
  */
 void BFSGeneric(PokemonNode *root, VisitNodeFunc visit)
 {
-    visit(root);
+    if(root == NULL)
+        return;
+    int height = pokedexHeight(root);
+    for(int i = 1 ; i <= height ; i++)
+        genericPokemonByLevel(root, i, visit);
+}
+
+/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
+void genericPokemonByLevel(PokemonNode *root, int level, VisitNodeFunc visit)
+{
+    if(root == NULL)
+        return;
+    if(level == 1)
+        visit(root);
+    else
+    {
+        genericPokemonByLevel(root->left, level - 1, visit);
+        genericPokemonByLevel(root->right, level - 1, visit);
+    }
 }
 
 /**
@@ -664,7 +682,11 @@ void BFSGeneric(PokemonNode *root, VisitNodeFunc visit)
  */
 void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
 {
+    if(root == NULL)
+        return;
     visit(root);
+    preOrderGeneric(root->left, visit);
+    preOrderGeneric(root->right, visit);
 }
 
 /**
@@ -675,7 +697,11 @@ void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
  */
 void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
 {
+    if(root == NULL)
+        return;
+    inOrderGeneric(root->left, visit);
     visit(root);
+    inOrderGeneric(root->right, visit);
 }
 
 /**
@@ -686,6 +712,10 @@ void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
  */
 void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit)
 {
+    if(root == NULL)
+        return;
+    postOrderGeneric(root->left, visit);
+    postOrderGeneric(root->right, visit);
     visit(root);
 }
 
@@ -802,77 +832,6 @@ void displayAlphabetical(PokemonNode *root)
     }
     free(array->nodes);
     free(array);
-}
-
-/**
- * @brief BFS user-friendly display (level-order).
- * @param root BST root
- * Why we made it: Quick listing in BFS order.
- */
-void displayBFS(PokemonNode *root)
-{
-    if(root == NULL)
-        return;
-    int height = pokedexHeight(root);
-    for(int i = 1 ; i <= height ; i++)
-        printPokemonByLevel(root, i);
-}
-
-/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
-void printPokemonByLevel(PokemonNode *root, int level)
-{
-    if(root == NULL)
-        return;
-    if(level == 1)
-        printPokemonNode(root);
-    else
-    {
-        printPokemonByLevel(root->left, level - 1);
-        printPokemonByLevel(root->right, level - 1);
-    }
-}
-
-
-/**
- * @brief Pre-order user-friendly display (Root->Left->Right).
- * @param root BST root
- * Why we made it: Another standard traversal for demonstration.
- */
-void preOrderTraversal(PokemonNode *root)
-{
-    if(root == NULL)
-        return;
-    printPokemonNode(root);
-    preOrderTraversal(root->left);
-    preOrderTraversal(root->right);
-}
-
-/**
- * @brief In-order user-friendly display (Left->Root->Right).
- * @param root BST root
- * Why we made it: Good for sorted output by ID if the tree is a BST.
- */
-void inOrderTraversal(PokemonNode *root)
-{
-    if(root == NULL)
-        return;
-    inOrderTraversal(root->left);
-    printPokemonNode(root);
-    inOrderTraversal(root->right);
-}
-
-/**
- * @brief Post-order user-friendly display (Left->Right->Root).
- * @param root BST root
- * Why we made it: Another standard traversal pattern.
- */
-void postOrderTraversal(PokemonNode *root)
-{
-    if(root == NULL)
-        return;
-    postOrderTraversal(root->left);
-    postOrderTraversal(root->right);
-    printPokemonNode(root);
 }
 
 /* ------------------------------------------------------------

@@ -216,6 +216,9 @@ typedef void (*VisitNodeFunc)(PokemonNode *);
  */
 void BFSGeneric(PokemonNode *root, VisitNodeFunc visit);
 
+/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
+void genericPokemonByLevel(PokemonNode *root, int level, VisitNodeFunc visit);
+
 /**
  * @brief A generic pre-order traversal (Root-Left-Right).
  * @param root BST root
@@ -290,38 +293,6 @@ int compareByNameNode(const void *a, const void *b);
  * Why we made it: Provide user the option to see Pokemon sorted by name.
  */
 void displayAlphabetical(PokemonNode *root);
-
-/**
- * @brief BFS user-friendly display (level-order).
- * @param root BST root
- * Why we made it: Quick listing in BFS order.
- */
-void displayBFS(PokemonNode *root);
-
-/**goes over the bst by level by searching for a specific level (distance from the root) to print*/
-void printPokemonByLevel(PokemonNode *root, int level);
-
-/**
- * @brief Pre-order user-friendly display (Root->Left->Right).
- * @param root BST root
- * Why we made it: Another standard traversal for demonstration.
- */
-void preOrderTraversal(PokemonNode *root);
-
-/**
- * @brief In-order user-friendly display (Left->Root->Right).
- * @param root BST root
- * Why we made it: Good for sorted output by ID if the tree is a BST.
- */
-void inOrderTraversal(PokemonNode *root);
-
-/**
- * @brief Post-order user-friendly display (Left->Right->Root).
- * @param root BST root
- * Why we made it: Another standard traversal pattern.
- */
-void postOrderTraversal(PokemonNode *root);
-
 
 /* ------------------------------------------------------------
    6) Pokemon-Specific
