@@ -895,16 +895,12 @@ void evolvePokemon(OwnerNode *owner)
         printf("Cannot evolve.\n");
         return;
     }
-    if(searchPokemonBFS(owner->pokedexRoot, id + 1) != NULL)
+    owner->pokedexRoot = removeNodeBST(owner->pokedexRoot, id);
+    if(searchPokemonBFS(owner->pokedexRoot, id + 1) == NULL)
     {
-        PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
-        pokemon->data = &pokedex[pokemon->data->id];
-        freeDuplicate(owner->pokedexRoot, id + 1, pokemon);
-    }
-    else
-    {
-        PokemonNode *pokemon = searchPokemonBFS(owner->pokedexRoot, id);
-        pokemon->data = &pokedex[pokemon->data->id];
+        PokemonNode *temp = createPokemonNode(&pokedex[id]);
+        owner->pokedexRoot = insertPokemonNode(owner->pokedexRoot, temp);
+        freePokemonNode(temp);
     }
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
 }
@@ -975,8 +971,7 @@ void addPokemon(OwnerNode *owner)
         printf("Pokemon with ID %d is already in the Pokedex. No changes made.\n", pokemonId);
         return;
     }
-    const PokemonData *pokemon = &pokedex[pokemonId - 1];
-    PokemonNode *newPokemon = createPokemonNode(pokemon);
+    PokemonNode *newPokemon = createPokemonNode(&pokedex[pokemonId - 1]);
     owner->pokedexRoot = insertPokemonNode(owner->pokedexRoot, newPokemon);
     freePokemonNode(newPokemon);
     printf("Pokemon %s (ID %d) added.\n", newPokemon->data->name, pokemonId);
