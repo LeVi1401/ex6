@@ -312,11 +312,6 @@ void pokemonFight(OwnerNode *owner);
  */
 void evolvePokemon(OwnerNode *owner);
 
-/**the same as the normal removeNodeBST function
- *but here the function also checks whether the pointer with the
- *correct pokemon id is the same as the one we just evolved*/
-PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node);
-
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.
  * @param owner pointer to the Owner

@@ -905,53 +905,6 @@ void evolvePokemon(OwnerNode *owner)
     printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n", pokedex[id - 1].name, id, pokedex[id + 1 - 1].name, id + 1);
 }
 
-/**the same as the normal removeNodeBST function
- *but here the function also checks whether the pointer with the
- *correct pokemon id is the same as the one we just evolved
- * I did it in order to release the pokemon we just evolved in case he was already in the pokedex as requested*/
-PokemonNode* freeDuplicate(PokemonNode* root, int id, PokemonNode *node)
-{
-    int currentId = root->data->id;
-    if(currentId > id)
-    {
-        root->left = freeDuplicate(root->left, id, node);
-        return root;
-    }
-    if(currentId < id)
-    {
-        root->right = freeDuplicate(root->right, id, node);
-        return root;
-    }
-    if(root == node)
-    {
-        if(root->left == NULL && root->right == NULL)
-        {
-            freePokemonNode(root);
-            root = NULL;
-            return NULL;
-        }
-        if(root->left == NULL)
-        {
-            PokemonNode *temp = root;
-            root = root->right;
-            freePokemonNode(temp);
-            return root;
-        }
-        if(root->right == NULL)
-        {
-            PokemonNode *temp = root;
-            root = root->left;
-            freePokemonNode(temp);
-            return root;
-        }
-        PokemonNode *successor = findMin(root->right);
-        root->data = successor->data;
-        root->right = freeDuplicate(root->right, successor->data->id, successor);
-    }
-    root->left = freeDuplicate(root->left, id, node);
-    return root;
-}
-
 /**
  * @brief Prompt for an ID, BFS-check duplicates, then insert into BST.
  * @param owner pointer to the Owner
